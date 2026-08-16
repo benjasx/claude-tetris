@@ -1,0 +1,27 @@
+[
+  { "name": "type:bug", "color": "d73a4a", "description": "Algo no funciona como debería" },
+  { "name": "type:feature", "color": "0e8a16", "description": "Funcionalidad nueva" },
+  { "name": "type:enhancement", "color": "a2eeef", "description": "Mejora sobre algo existente" },
+  { "name": "type:docs", "color": "0075ca", "description": "Documentación (README, CLAUDE.md, comentarios)" },
+  { "name": "type:question", "color": "d876e3", "description": "Pregunta o duda, no requiere código" },
+  { "name": "type:chore", "color": "cfd3d7", "description": "Mantenimiento, tooling, CI" },
+
+  { "name": "area:gameplay", "color": "fbca04", "description": "Lógica de juego: colisión, rotación, wall kicks, loop" },
+  { "name": "area:rendering", "color": "fbca04", "description": "Dibujo en canvas: tablero, ghost piece, next piece" },
+  { "name": "area:ui", "color": "fbca04", "description": "HTML/CSS, layout, estilos" },
+  { "name": "area:controls", "color": "fbca04", "description": "Input de teclado y controles" },
+  { "name": "area:scoring", "color": "fbca04", "description": "Puntuación, nivel, velocidad" },
+  { "name": "area:ci", "color": "fbca04", "description": "GitHub Actions, workflows" },
+
+  { "name": "priority:p0", "color": "b60205", "description": "Crítico, bloquea el juego" },
+  { "name": "priority:p1", "color": "d93f0b", "description": "Alta prioridad" },
+  { "name": "priority:p2", "color": "fef2c0", "description": "Prioridad normal" },
+  { "name": "priority:p3", "color": "c5def5", "description": "Baja prioridad, nice to have" },
+
+  { "name": "size:xs", "color": "c2e0c6", "description": "Cambio trivial, < 30 min" },
+  { "name": "size:s", "color": "c2e0c6", "description": "Cambio pequeño, unas pocas líneas" },
+  { "name": "size:m", "color": "c2e0c6", "description": "Cambio moderado, una función o varias" },
+  { "name": "size:l", "color": "c2e0c6", "description": "Cambio grande, toca varias partes del código" },
+
+  { "name": "needs-info", "color": "e4e669", "description": "Falta información para poder diagnosticar o implementar" }
+]
