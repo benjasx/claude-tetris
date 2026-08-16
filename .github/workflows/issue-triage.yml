@@ -67,7 +67,10 @@ jobs:
             5. Aplica las labels elegidas con
                `gh issue edit ${{ github.event.issue.number }} --add-label "label1,label2,..."`.
                No quites labels que ya estén puestas (pueden haberlas puesto humanos).
-            6. Escribe el diagnóstico en español, con este formato EXACTO (incluye el comentario HTML de la primera línea, es el marcador que usamos para no duplicar comentarios):
+            6. Escribe el diagnóstico en español, en formato Markdown válido que GitHub pueda renderizar
+               correctamente (encabezados, negritas, listas y bloques de código con backticks), con este
+               formato EXACTO (incluye el comentario HTML de la primera línea, es el marcador que usamos
+               para no duplicar comentarios):
 
                <!-- claude-triage -->
                ## 🔍 Diagnóstico automático
