@@ -141,6 +141,14 @@ body {
   letter-spacing: 1px;
 }
 
+.value.small {
+  font-size: 14px;
+}
+
+#board.frozen {
+  box-shadow: 0 0 0 2px var(--accent), 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
 #next-canvas {
   display: block;
   border: 1px solid var(--panel-border);
