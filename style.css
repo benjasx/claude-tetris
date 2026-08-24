@@ -149,6 +149,49 @@ body {
   box-shadow: 0 0 0 2px var(--accent), 0 0 40px rgba(0, 0, 0, 0.6);
 }
 
+/* ---- Combo / bonus popup ---- */
+.board-wrap {
+  position: relative;
+}
+
+.combo-popup {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.6);
+  pointer-events: none;
+  text-align: center;
+  opacity: 0;
+}
+
+.combo-popup.show {
+  animation: combo-pop 0.9s ease-out forwards;
+}
+
+.combo-popup .combo-line {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+}
+
+.combo-popup .combo-points {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--danger);
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes combo-pop {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+  15% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+  30% { transform: translate(-50%, -50%) scale(1); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -60%) scale(1); }
+}
+
 #next-canvas {
   display: block;
   border: 1px solid var(--panel-border);
