@@ -59,7 +59,31 @@
       <div class="overlay-box">
         <p id="overlay-title">GAME OVER</p>
         <p id="overlay-score"></p>
+        <div id="gameover-records">
+          <div id="gameover-highscores" class="highscores"></div>
+          <div class="records-stats">
+            <div><span class="label">MEJOR COMBO</span><span id="gameover-best-combo" class="value small">0</span></div>
+            <div><span class="label">LÍNEAS MÁX</span><span id="gameover-best-lines" class="value small">0</span></div>
+          </div>
+          <div id="highscore-entry" class="highscore-entry">
+            <input id="highscore-name" type="text" maxlength="12" placeholder="Tu nombre" />
+            <button id="save-score-btn" type="button">Guardar</button>
+          </div>
+        </div>
         <button id="restart-btn">Reiniciar</button>
+      </div>
+    </div>
+
+    <div id="start-screen" class="start-screen">
+      <div class="start-box">
+        <p class="start-title">TETRIS</p>
+        <div id="start-highscores" class="highscores"></div>
+        <div class="records-stats">
+          <div><span class="label">MEJOR COMBO</span><span id="start-best-combo" class="value small">0</span></div>
+          <div><span class="label">LÍNEAS MÁX</span><span id="start-best-lines" class="value small">0</span></div>
+        </div>
+        <button id="start-play-btn" type="button">Jugar</button>
+        <button id="reset-records-btn" type="button">Resetear records</button>
       </div>
     </div>
   </div>
