@@ -279,3 +279,24 @@ kbd {
 #restart-btn:hover {
   filter: brightness(1.15);
 }
+
+/* ---- Skins ---- */
+#skin-select {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+#skin-select:hover {
+  border-color: var(--accent);
+}
+
+[data-skin="neon"] #board,
+[data-skin="neon"] #next-canvas {
+  background: #000;
+}
