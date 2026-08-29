@@ -79,6 +79,7 @@ let board, current, next, score, lines, level, paused, gameOver, lastTime, dropA
 let gridColor, blockHighlight;
 let wildcard, linesSincePowerup, pendingPowerup, pendingSingle, freezeRemaining;
 let combo, b2bTetrisActive, lastActionWasRotate, comboPopupTimeout, audioCtx;
+let startLevel;
 
 function readThemeColors() {
   const styles = getComputedStyle(document.documentElement);
@@ -275,7 +276,7 @@ function clearLines() {
   }
 
   score += gained;
-  level = Math.floor(lines / 10) + 1;
+  level = Math.max(startLevel, Math.floor(lines / 10) + 1);
   dropInterval = Math.max(100, 1000 - (level - 1) * 90);
   linesSincePowerup += cleared;
   if (linesSincePowerup >= POWERUP_INTERVAL) {
@@ -572,13 +573,12 @@ function togglePause() {
   if (gameOver) return;
   paused = !paused;
   if (!paused) {
+    pauseOverlay.classList.add('hidden');
     lastTime = performance.now();
     loop(lastTime);
   } else {
     cancelAnimationFrame(animId);
-    overlayTitle.textContent = 'PAUSA';
-    overlayScore.textContent = '';
-    overlay.classList.remove('hidden');
+    pauseOverlay.classList.remove('hidden');
   }
 }
 
@@ -610,10 +610,11 @@ function init() {
   wildcard = createWildcardGrid();
   score = 0;
   lines = 0;
-  level = 1;
+  startLevel = parseInt(localStorage.getItem('tetris-start-level')) || 1;
+  level = startLevel;
   paused = false;
   gameOver = false;
-  dropInterval = 1000;
+  dropInterval = Math.max(100, 1000 - (level - 1) * 90);
   dropAccum = 0;
   linesSincePowerup = 0;
   pendingPowerup = false;
@@ -627,12 +628,13 @@ function init() {
   spawn();
   updateHUD();
   overlay.classList.add('hidden');
+  pauseOverlay.classList.add('hidden');
   cancelAnimationFrame(animId);
   animId = requestAnimationFrame(loop);
 }
 
 document.addEventListener('keydown', e => {
-  if (e.code === 'KeyP') { togglePause(); return; }
+  if (e.code === 'KeyP' || e.code === 'Escape') { togglePause(); return; }
   if (paused || gameOver) return;
   switch (e.code) {
     case 'ArrowLeft':
@@ -654,6 +656,32 @@ document.addEventListener('keydown', e => {
       break;
   }
   updateHUD();
+});
+
+// ---- Menú de pausa ----
+const pauseOverlay = document.getElementById('pause-overlay');
+const pauseResumeBtn = document.getElementById('pause-resume-btn');
+const pauseRestartBtn = document.getElementById('pause-restart-btn');
+const pauseControlsToggle = document.getElementById('pause-controls-toggle');
+const pauseControlsList = document.getElementById('pause-controls-list');
+const startLevelSelect = document.getElementById('start-level');
+
+for (let i = 1; i <= 15; i++) {
+  const opt = document.createElement('option');
+  opt.value = i;
+  opt.textContent = i;
+  startLevelSelect.appendChild(opt);
+}
+startLevelSelect.value = parseInt(localStorage.getItem('tetris-start-level')) || 1;
+
+startLevelSelect.addEventListener('change', () => {
+  localStorage.setItem('tetris-start-level', startLevelSelect.value);
+});
+
+pauseResumeBtn.addEventListener('click', togglePause);
+pauseRestartBtn.addEventListener('click', init);
+pauseControlsToggle.addEventListener('click', () => {
+  pauseControlsList.classList.toggle('hidden');
 });
 
 restartBtn.addEventListener('click', init);
