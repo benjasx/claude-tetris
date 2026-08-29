@@ -79,6 +79,7 @@ let board, current, next, score, lines, level, paused, gameOver, lastTime, dropA
 let gridColor, blockHighlight;
 let wildcard, linesSincePowerup, pendingPowerup, pendingSingle, freezeRemaining;
 let combo, b2bTetrisActive, lastActionWasRotate, comboPopupTimeout, audioCtx;
+let maxCombo; // mejor combo alcanzado en la partida en curso (records)
 
 function readThemeColors() {
   const styles = getComputedStyle(document.documentElement);
@@ -242,6 +243,7 @@ function clearLines() {
 
   lines += cleared;
   combo++;
+  if (combo > 1 && combo > maxCombo) maxCombo = combo; // records: mejor combo de la partida
   const messages = [];
   let gained = wasTSpin ? TSPIN_SCORES[cleared] * level : LINE_SCORES[cleared] * level;
 
@@ -566,6 +568,7 @@ function endGame() {
   overlayTitle.textContent = 'GAME OVER';
   overlayScore.textContent = `Puntuación: ${score.toLocaleString()}`;
   overlay.classList.remove('hidden');
+  showGameOverRecords();
 }
 
 function togglePause() {
@@ -620,6 +623,7 @@ function init() {
   pendingSingle = false;
   freezeRemaining = 0;
   combo = 0;
+  maxCombo = 0;
   b2bTetrisActive = false;
   lastActionWasRotate = false;
   lastTime = performance.now();
@@ -627,11 +631,189 @@ function init() {
   spawn();
   updateHUD();
   overlay.classList.add('hidden');
+  gameoverRecordsEl.classList.remove('is-visible');
   cancelAnimationFrame(animId);
   animId = requestAnimationFrame(loop);
 }
 
+// ---- Tabla de records ----
+const HIGHSCORES_KEY = 'tetris-highscores';
+const RECORDS_BEST_KEY = 'tetris-records-best';
+const MAX_HIGHSCORES = 5;
+
+const startScreen = document.getElementById('start-screen');
+const startPlayBtn = document.getElementById('start-play-btn');
+const resetRecordsBtn = document.getElementById('reset-records-btn');
+const startHighscoresEl = document.getElementById('start-highscores');
+const startBestComboEl = document.getElementById('start-best-combo');
+const startBestLinesEl = document.getElementById('start-best-lines');
+const gameoverRecordsEl = document.getElementById('gameover-records');
+const gameoverHighscoresEl = document.getElementById('gameover-highscores');
+const gameoverBestComboEl = document.getElementById('gameover-best-combo');
+const gameoverBestLinesEl = document.getElementById('gameover-best-lines');
+const highscoreEntryEl = document.getElementById('highscore-entry');
+const highscoreNameInput = document.getElementById('highscore-name');
+const saveScoreBtn = document.getElementById('save-score-btn');
+
+function loadHighscores() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(HIGHSCORES_KEY));
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .filter(e => e && typeof e.score === 'number')
+      .map(e => ({
+        name: typeof e.name === 'string' ? e.name : '—',
+        score: e.score,
+        lines: e.lines || 0,
+        maxCombo: e.maxCombo || 0,
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, MAX_HIGHSCORES);
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveHighscores(list) {
+  localStorage.setItem(HIGHSCORES_KEY, JSON.stringify(list.slice(0, MAX_HIGHSCORES)));
+}
+
+// true si la puntuación entraría en el top 5
+function isHighscore(value) {
+  if (value <= 0) return false;
+  const list = loadHighscores();
+  if (list.length < MAX_HIGHSCORES) return true;
+  return value >= list[list.length - 1].score;
+}
+
+function addHighscore(entry) {
+  const list = loadHighscores();
+  list.push(entry);
+  list.sort((a, b) => b.score - a.score);
+  const trimmed = list.slice(0, MAX_HIGHSCORES);
+  saveHighscores(trimmed);
+  updateBest(entry.lines, entry.maxCombo);
+  return trimmed;
+}
+
+// históricos: mejor combo y líneas máximas de todas las partidas
+function loadBest() {
+  const best = { maxCombo: 0, maxLines: 0 };
+  try {
+    const raw = JSON.parse(localStorage.getItem(RECORDS_BEST_KEY));
+    if (raw && typeof raw === 'object') {
+      best.maxCombo = raw.maxCombo || 0;
+      best.maxLines = raw.maxLines || 0;
+    }
+  } catch (e) { /* sin datos previos */ }
+  for (const e of loadHighscores()) {
+    if (e.maxCombo > best.maxCombo) best.maxCombo = e.maxCombo;
+    if (e.lines > best.maxLines) best.maxLines = e.lines;
+  }
+  return best;
+}
+
+function updateBest(gameLines, gameCombo) {
+  const best = loadBest();
+  const next = {
+    maxCombo: Math.max(best.maxCombo, gameCombo || 0),
+    maxLines: Math.max(best.maxLines, gameLines || 0),
+  };
+  localStorage.setItem(RECORDS_BEST_KEY, JSON.stringify(next));
+  return next;
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[ch]));
+}
+
+function sameEntry(a, b) {
+  return !!a && !!b && a.name === b.name && a.score === b.score
+    && a.lines === b.lines && a.maxCombo === b.maxCombo;
+}
+
+// renderiza la tabla dentro de container; resalta la fila igual a highlightEntry
+function renderHighscores(container, highlightEntry) {
+  if (!container) return;
+  const list = loadHighscores();
+  if (!list.length) {
+    container.innerHTML = '<p class="highscores-empty">Sin records todavía</p>';
+    return;
+  }
+  let highlighted = false;
+  const rows = list.map((e, i) => {
+    let isNew = false;
+    if (!highlighted && highlightEntry && sameEntry(e, highlightEntry)) {
+      isNew = true;
+      highlighted = true;
+    }
+    return `<tr class="highscore-row${isNew ? ' is-new' : ''}">`
+      + `<td>${i + 1}</td>`
+      + `<td>${escapeHtml(e.name || '—')}</td>`
+      + `<td>${(e.score || 0).toLocaleString()}</td>`
+      + `<td>${e.lines || 0}</td>`
+      + `<td>${e.maxCombo || 0}</td>`
+      + '</tr>';
+  }).join('');
+  container.innerHTML = '<table class="highscore-table">'
+    + '<thead><tr><th>#</th><th>Nombre</th><th>Puntos</th><th>Líneas</th><th>Combo</th></tr></thead>'
+    + `<tbody>${rows}</tbody></table>`;
+}
+
+function renderBest(comboEl, linesEl) {
+  const best = loadBest();
+  if (comboEl) comboEl.textContent = best.maxCombo;
+  if (linesEl) linesEl.textContent = best.maxLines;
+}
+
+// refresca las dos tablas visibles (inicio + game over) y sus históricos
+function refreshRecordViews() {
+  renderHighscores(startHighscoresEl);
+  renderBest(startBestComboEl, startBestLinesEl);
+  renderHighscores(gameoverHighscoresEl);
+  renderBest(gameoverBestComboEl, gameoverBestLinesEl);
+}
+
+function showStartScreen() {
+  renderHighscores(startHighscoresEl);
+  renderBest(startBestComboEl, startBestLinesEl);
+  startScreen.classList.remove('hidden');
+}
+
+function showGameOverRecords() {
+  updateBest(lines, maxCombo);
+  renderHighscores(gameoverHighscoresEl);
+  renderBest(gameoverBestComboEl, gameoverBestLinesEl);
+  gameoverRecordsEl.classList.add('is-visible');
+  if (isHighscore(score)) {
+    highscoreEntryEl.style.display = 'flex';
+    highscoreNameInput.value = '';
+    highscoreNameInput.focus();
+  } else {
+    highscoreEntryEl.style.display = 'none';
+  }
+}
+
+function saveCurrentScore() {
+  const name = (highscoreNameInput.value || '').trim().slice(0, 12) || 'Anónimo';
+  const entry = { name, score, lines, maxCombo };
+  addHighscore(entry);
+  renderHighscores(gameoverHighscoresEl, entry);
+  renderBest(gameoverBestComboEl, gameoverBestLinesEl);
+  highscoreEntryEl.style.display = 'none';
+}
+
+function resetRecords() {
+  if (!confirm('¿Borrar todos los records?')) return;
+  localStorage.removeItem(HIGHSCORES_KEY);
+  localStorage.removeItem(RECORDS_BEST_KEY);
+  refreshRecordViews();
+}
+
 document.addEventListener('keydown', e => {
+  if (!board) return; // aún en la pantalla de inicio, el juego no ha arrancado
   if (e.code === 'KeyP') { togglePause(); return; }
   if (paused || gameOver) return;
   switch (e.code) {
@@ -658,6 +840,9 @@ document.addEventListener('keydown', e => {
 
 restartBtn.addEventListener('click', init);
 themeToggleBtn.addEventListener('click', toggleTheme);
+startPlayBtn.addEventListener('click', () => { startScreen.classList.add('hidden'); init(); });
+resetRecordsBtn.addEventListener('click', resetRecords);
+saveScoreBtn.addEventListener('click', saveCurrentScore);
 
 applyTheme(localStorage.getItem('theme') === 'light' ? 'light' : 'dark');
-init();
+showStartScreen();

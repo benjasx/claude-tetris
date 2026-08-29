@@ -279,3 +279,173 @@ kbd {
 #restart-btn:hover {
   filter: brightness(1.15);
 }
+
+/* ---- Tabla de records ---- */
+.start-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(4px);
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.start-screen.hidden {
+  display: none;
+}
+
+.start-box {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  padding: 24px;
+  max-width: 280px;
+}
+
+.start-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: var(--accent);
+}
+
+.highscores {
+  width: 100%;
+}
+
+.highscore-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.highscore-table th {
+  color: var(--label);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 4px 6px;
+  text-align: right;
+}
+
+.highscore-table th:nth-child(2) {
+  text-align: left;
+}
+
+.highscore-table td {
+  padding: 4px 6px;
+  text-align: right;
+  border-top: 1px solid var(--panel-border);
+}
+
+.highscore-table td:nth-child(2) {
+  text-align: left;
+}
+
+.highscore-row.is-new {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.highscore-row.is-new td {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.highscores-empty {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.records-stats {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.records-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#gameover-records {
+  display: none;
+  width: 100%;
+  max-width: 280px;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+#gameover-records.is-visible {
+  display: flex;
+}
+
+.highscore-entry {
+  display: none;
+  gap: 8px;
+  width: 100%;
+}
+
+#highscore-name {
+  flex: 1;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+#highscore-name:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+#save-score-btn,
+#start-play-btn,
+#reset-records-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background 0.15s, filter 0.15s;
+}
+
+#save-score-btn,
+#start-play-btn {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+#start-play-btn {
+  padding: 10px 28px;
+  font-size: 14px;
+}
+
+#save-score-btn:hover,
+#start-play-btn:hover {
+  filter: brightness(1.15);
+}
+
+#reset-records-btn {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+#reset-records-btn:hover {
+  background: var(--danger);
+  color: var(--accent-contrast);
+}
